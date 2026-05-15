@@ -14,6 +14,7 @@
 
 ## 📌 Table of Contents
 - [Overview](#overview)
+- [Why Build This System?](#why-build-this-system)
 - [Key Features](#key-features)
 - [Tech Stack](#tech-stack)
 - [Project Structure](#project-structure)
@@ -47,6 +48,27 @@
 4. **Answers clinical questions** via a **LangChain** agent that can retrieve medical literature (RAG) and generate draft reports.
 
 The system is built as a **full‑stack web application** with a FastAPI backend and a Next.js frontend, containerised with Docker for easy deployment.
+
+---
+
+## ❓ Why Build This System?
+
+Alzheimer’s disease affects over **55 million people worldwide**, yet early diagnosis remains challenging. Current clinical practice relies on:
+- **Subjective cognitive assessments** (e.g., MMSE, CDR) that can miss subtle changes.
+- **Manual MRI reading** by radiologists – time‑consuming, variable, and suffers from inter‑observer disagreement.
+- **Delayed intervention** – by the time symptoms are obvious, significant neuronal loss has already occurred.
+
+**NeuroSight addresses these gaps by:**
+
+| Problem | Solution |
+|---------|----------|
+| **Slow, subjective diagnosis** | AI‑powered staging in <2 seconds, consistent and reproducible |
+| **Black‑box AI mistrust** | Grad‑CAM heatmaps show *why* the model decided a certain stage |
+| **Information overload** | LangChain agent retrieves relevant PubMed literature on demand |
+| **Clinical workflow friction** | Simple web UI – upload, view, chat – no complex software installation |
+| **Scalability gap** | Docker containerisation allows deployment in any hospital with a GPU |
+
+> **The goal** is not to replace clinicians but to serve as a **second reader** – reducing missed diagnoses, accelerating triage, and providing evidence‑based decision support.
 
 ---
 
@@ -108,3 +130,4 @@ Confusion matrix and Grad‑CAM examples are available in the [Results](#results
    ```bash
    git clone https://github.com/yourusername/neurosight.git
    cd neurosight/backend
+ 
