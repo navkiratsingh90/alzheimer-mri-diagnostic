@@ -22,9 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={cn("font-sans", geist.variable)}>
       <body className={inter.className}>
-        {/* <Navbar /> */}
         <main className="pt-16 md:pt-20">{children}</main>
-        {/* <Footer /> */}
       </body>
     </html>
   );
