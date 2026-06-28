@@ -4,6 +4,7 @@ import './globals.css';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { cn } from "@/lib/utils";
+import { AuthProvider } from '@/lib/authContext';
 
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
@@ -22,7 +23,11 @@ export default function RootLayout({
   return (
     <html lang="en" className={cn("font-sans", geist.variable)}>
       <body className={inter.className}>
-        <main className="pt-16 md:pt-20">{children}</main>
+        <main className="pt-16 md:pt-20">
+        <AuthProvider>
+          {children}
+        </AuthProvider>
+        </main>
       </body>
     </html>
   );

@@ -1,30 +1,25 @@
-import { PredictResponse } from '@/types';
+import axios from "axios";
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
+const api = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000",
+  withCredentials: true, // send cookies (JWT stored in HTTP-only cookie)
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
 
-export async function predictMRI(file: File): Promise<PredictResponse> {
-  const formData = new FormData();
-  formData.append('file', file);
-
-  const response = await fetch(`${BACKEND_URL}/api/v1/predict`, {
-    method: 'POST',
-    body: formData,
-  });
-
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`Prediction failed: ${error}`);
+// Response interceptor for handling authentication errors
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // If we're on the client, redirect to login
+      if (typeof window !== "undefined") {
+        window.location.href = "/login";
+      }
+    }
+    return Promise.reject(error);
   }
+);
 
-  return response.json();
-}
-
-// Optional: chat API (for later)
-export async function chatQuery(question: string, sessionId?: string) {
-  const response = await fetch(`${BACKEND_URL}/api/v1/chat`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ question, session_id: sessionId }),
-  });
-  return response.json();
-}
+export default api;

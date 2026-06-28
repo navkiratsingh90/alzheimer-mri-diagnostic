@@ -1,297 +1,473 @@
 "use client";
 
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import {
+  Upload,
+  FileImage,
+  Activity,
+  Clock,
+  ArrowRight,
+  Brain,
+  AlertCircle,
+  Loader2,
+  LogOut,
+  MessageSquare,
+  FileText,
+  Scan,
+} from "lucide-react";
+import Image from "next/image";
 
-// ── Inline SVG icons (same style) ────────────────────────────
-const UserIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-    <circle cx="12" cy="7" r="4" />
-  </svg>
-);
-
-const UsersIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-    <circle cx="9" cy="7" r="4" />
-    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-  </svg>
-);
-
-const ScanIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-    <path d="M3 7V5a2 2 0 0 1 2-2h2" />
-    <path d="M17 3h2a2 2 0 0 1 2 2v2" />
-    <path d="M21 17v2a2 2 0 0 1-2 2h-2" />
-    <path d="M7 21H5a2 2 0 0 1-2-2v-2" />
-    <line x1="7" y1="12" x2="17" y2="12" />
-    <line x1="12" y1="7" x2="12" y2="17" />
-  </svg>
-);
-
-const BrainIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-    <path d="M9.5 2a2.5 2.5 0 0 1 5 0v.5" />
-    <path d="M12 2.5C8 2.5 5 5.5 5 9c0 1.5.5 2.8 1.3 3.9" />
-    <path d="M12 2.5c4 0 7 3 7 6.5 0 1.5-.5 2.8-1.3 3.9" />
-    <path d="M6.3 12.9C5.5 14 5 15.4 5 17a5 5 0 0 0 10 0c0-1.6-.5-3-1.3-4.1" />
-    <line x1="12" y1="22" x2="12" y2="17" />
-    <line x1="9" y1="17" x2="15" y2="17" />
-  </svg>
-);
-
-const ChartIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-    <line x1="18" y1="20" x2="18" y2="10" />
-    <line x1="12" y1="20" x2="12" y2="4" />
-    <line x1="6" y1="20" x2="6" y2="14" />
-    <rect x="2" y="2" width="20" height="20" rx="2" />
-  </svg>
-);
-
-const UploadIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-    <polyline points="17 8 12 3 7 8" />
-    <line x1="12" y1="3" x2="12" y2="15" />
-  </svg>
-);
-
-const PlusIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <line x1="12" y1="5" x2="12" y2="19" />
-    <line x1="5" y1="12" x2="19" y2="12" />
-  </svg>
-);
-
-const ChatIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-  </svg>
-);
-
-const SettingsIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <circle cx="12" cy="12" r="3" />
-    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
-  </svg>
-);
-
-const EyeIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-    <circle cx="12" cy="12" r="3" />
-  </svg>
-);
-
-const ArrowRight = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <line x1="5" y1="12" x2="19" y2="12" />
-    <polyline points="12 5 19 12 12 19" />
-  </svg>
-);
-
-// ── Stat Card Component ──────────────────────────────────────
-interface StatCardProps {
-  icon: React.ReactNode;
-  title: string;
-  value: string;
-  change?: string;
+// ── Types ─────────────────────────────────────────────────────
+interface Prediction {
+  id: number;
+  image_path: string;
+  result: string;
+  confidence: number;
+  timestamp: string;
 }
 
-const StatCard = ({ icon, title, value, change }: StatCardProps) => (
-  <div className="bg-white border border-[#E8EDF2] rounded-xl p-5 shadow-sm">
-    <div className="flex items-center justify-between mb-3">
-      <div className="w-9 h-9 rounded-xl bg-[#EDF7F3] flex items-center justify-center text-[#0EA472]">
-        {icon}
+interface User {
+  id: number;
+  username: string;
+  role: string;
+}
+
+// ── Mock Data ────────────────────────────────────────────────
+const MOCK_USER: User = {
+  id: 1,
+  username: "demo_user",
+  role: "user", // change to "admin" to see admin panel link
+};
+
+const MOCK_PREDICTIONS: Prediction[] = [
+  {
+    id: 101,
+    image_path: "/mock/mri-1.jpg", // this will fail, but we have fallback
+    result: "Mild",
+    confidence: 0.784,
+    timestamp: new Date(Date.now() - 3600000 * 2).toISOString(), // 2 hours ago
+  },
+  {
+    id: 102,
+    image_path: "/mock/mri-2.jpg",
+    result: "NonDemented",
+    confidence: 0.923,
+    timestamp: new Date(Date.now() - 3600000 * 24 * 3).toISOString(), // 3 days ago
+  },
+  {
+    id: 103,
+    image_path: "/mock/mri-3.jpg",
+    result: "VeryMild",
+    confidence: 0.651,
+    timestamp: new Date(Date.now() - 3600000 * 24 * 7).toISOString(), // 7 days ago
+  },
+  {
+    id: 104,
+    image_path: "/mock/mri-4.jpg",
+    result: "Moderate",
+    confidence: 0.892,
+    timestamp: new Date(Date.now() - 3600000 * 24 * 14).toISOString(), // 14 days ago
+  },
+];
+
+// ── Helper to format date ────────────────────────────────────
+const formatDate = (dateStr: string) => {
+  const d = new Date(dateStr);
+  return d.toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+
+// ── Main Component ───────────────────────────────────────────
+export default function DashboardPage() {
+  const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // ── State with mock data as initial values ─────────────────
+  const [user, setUser] = useState<User | null>(MOCK_USER);
+  const [predictions, setPredictions] = useState<Prediction[]>(MOCK_PREDICTIONS);
+  const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [latestResult, setLatestResult] = useState<Prediction | null>(
+    MOCK_PREDICTIONS[0] || null
+  );
+
+  // ── Simulate loading (optional) ────────────────────────────
+  useEffect(() => {
+    // You can uncomment this to simulate a loading state
+    // setLoading(true);
+    // setTimeout(() => setLoading(false), 800);
+  }, []);
+
+  // ── Handle file selection ──────────────────────────────────
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setSelectedFile(file);
+    setPreviewUrl(URL.createObjectURL(file));
+    setUploadError(null);
+  };
+
+  // ── Handle upload (simulated) ──────────────────────────────
+  const handleUpload = async () => {
+    if (!selectedFile) return;
+    setUploading(true);
+    setUploadError(null);
+
+    // Simulate upload and add mock prediction
+    const newPred: Prediction = {
+      id: Date.now(),
+      image_path: previewUrl || "",
+      result: ["NonDemented", "VeryMild", "Mild", "Moderate"][
+        Math.floor(Math.random() * 4)
+      ],
+      confidence: 0.7 + Math.random() * 0.25,
+      timestamp: new Date().toISOString(),
+    };
+
+    // Add to list and update latest
+    setPredictions((prev) => [newPred, ...prev]);
+    setLatestResult(newPred);
+
+    // Reset file input
+    setSelectedFile(null);
+    setPreviewUrl(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+
+    setUploading(false);
+  };
+
+  // ── Logout (simulated) ──────────────────────────────────────
+  const handleLogout = async () => {
+    // Simulate logout
+    router.push("/login");
+  };
+
+  // ── Loading state ──────────────────────────────────────────
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#F8FAFB] flex items-center justify-center">
+        <Loader2 size={32} className="animate-spin text-[#0EA472]" />
       </div>
-      {change && <span className="text-xs text-green-600 bg-green-50 px-2 py-0.5 rounded-full">{change}</span>}
-    </div>
-    <p className="m-0 text-xs text-[#64748B]">{title}</p>
-    <p className="m-0 mt-1 text-2xl font-bold text-[#0D1B2A]">{value}</p>
-  </div>
-);
+    );
+  }
 
-// ── Main User Dashboard ───────────────────────────────────────
-export default function UserDashboard() {
-  // Mock data (replace with real API calls)
-  const user = {
-    name: "Dr. Priya Sharma",
-    role: "Neurologist",
-    institution: "Apollo Hospitals, Delhi",
-    avatarInitials: "PS",
-  };
-
-  const myStats = {
-    patients: 24,
-    scans: 86,
-    analyses: 86,
-    avgAccuracy: 94.2,
-  };
-
-  const recentScans = [
-    { id: 1, patient: "John Doe", date: "2025-03-15", stage: "Mild Demented", confidence: 87 },
-    { id: 2, patient: "Jane Smith", date: "2025-03-14", stage: "Very Mild", confidence: 92 },
-    { id: 3, patient: "Robert Brown", date: "2025-03-12", stage: "Non-Demented", confidence: 96 },
-    { id: 4, patient: "Emily Davis", date: "2025-03-10", stage: "Moderate", confidence: 78 },
-  ];
-
-  const recentActivity = [
-    { id: 1, action: "You uploaded a new scan for John Doe", time: "2 hours ago" },
-    { id: 2, action: "Analysis completed: Mild Demented (87%)", time: "Yesterday" },
-    { id: 3, action: "You added a new patient: Emily Davis", time: "2 days ago" },
-  ];
-
+  // ── Render ──────────────────────────────────────────────────
   return (
-    <div className="bg-[#F8FAFB] min-h-screen font-['Inter',-apple-system,sans-serif]">
-      {/* Header */}
-      <div className="border-b border-[#E8EDF2] bg-white px-8 py-6">
-        <div className="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-[#0D1B2A]">My Dashboard</h1>
-            <p className="text-sm text-[#64748B] mt-1">
-              Welcome back, <span className="font-semibold text-[#0D1B2A]">{user.name.split(" ")[0]}</span>
-            </p>
+    <div className="min-h-screen bg-[#F8FAFB] font-['Inter',-apple-system,sans-serif]">
+      {/* ── Navbar ── */}
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-[#E8EDF2] px-8 h-16 flex items-center justify-between shadow-sm">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#0EA472] to-[#059669] flex items-center justify-center">
+            <Brain size={16} className="text-white" />
           </div>
-          <div className="flex gap-3">
-            <Link
-              href="/scan/upload"
-              className="inline-flex items-center gap-2 bg-[#0D1B2A] text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-[#1A2C3E] transition"
-            >
-              <UploadIcon />
-              Upload MRI
-            </Link>
-            <Link
-              href="/patients/new"
-              className="inline-flex items-center gap-2 border border-[#E8EDF2] bg-white text-[#0D1B2A] px-4 py-2 rounded-xl text-sm font-medium hover:bg-[#F8FAFB] transition"
-            >
-              <PlusIcon />
-              Add Patient
-            </Link>
-          </div>
+          <span className="text-base font-bold text-[#0D1B2A] tracking-[-0.3px]">
+            Neuro<span className="text-[#0EA472]">Sight</span>
+          </span>
         </div>
-      </div>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-8 py-8">
-        {/* User Profile Card (Personal) */}
-        <div className="bg-white border border-[#E8EDF2] rounded-xl p-5 shadow-sm mb-8 flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#0EA472] to-[#059669] flex items-center justify-center text-white font-bold text-lg">
-              {user.avatarInitials}
-            </div>
-            <div>
-              <h2 className="text-xl font-bold text-[#0D1B2A]">{user.name}</h2>
-              <p className="text-sm text-[#64748B]">{user.role} · {user.institution}</p>
-            </div>
-          </div>
-          <Link
-            href="/settings"
-            className="flex items-center gap-2 text-sm text-[#64748B] hover:text-[#0D1B2A] transition"
+        <div className="flex items-center gap-6">
+          <span className="text-sm text-[#64748B] hidden sm:inline">
+            {user?.username} {user?.role === "admin" && "(Admin)"}
+          </span>
+          {user?.role === "admin" && (
+            <Link
+              href="/admin/users"
+              className="text-sm text-[#0EA472] font-medium hover:underline"
+            >
+              Admin Panel
+            </Link>
+          )}
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-1.5 text-sm text-[#64748B] hover:text-[#0D1B2A] transition"
           >
-            <SettingsIcon />
-            Account Settings
-          </Link>
+            <LogOut size={16} />
+            <span className="hidden sm:inline">Logout</span>
+          </button>
+        </div>
+      </nav>
+
+      {/* ── Main content ── */}
+      <div className="pt-20 px-8 pb-12 max-w-[1200px] mx-auto">
+        {/* Welcome */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-extrabold text-[#0D1B2A] tracking-[-0.5px]">
+            Welcome back, {user?.username || "User"} 👋
+          </h1>
+          <p className="text-[#64748B] text-sm mt-1">
+            Upload a new MRI scan or review your recent predictions.
+          </p>
         </div>
 
-        {/* Stats Grid (My data) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
-          <StatCard icon={<UsersIcon />} title="My Patients" value={myStats.patients.toString()} change="+3 this month" />
-          <StatCard icon={<ScanIcon />} title="My Scans" value={myStats.scans.toString()} change="+12" />
-          <StatCard icon={<BrainIcon />} title="My Analyses" value={myStats.analyses.toString()} change="100%" />
-          <StatCard icon={<ChartIcon />} title="My Avg. Accuracy" value={`${myStats.avgAccuracy}%`} change="+2.1%" />
-        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* ── Upload & Result Column (2/3) ── */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Upload Card */}
+            <div className="bg-white border border-[#E8EDF2] rounded-2xl p-6 shadow-sm">
+              <h2 className="text-lg font-semibold text-[#0D1B2A] mb-4 flex items-center gap-2">
+                <Upload size={20} className="text-[#0EA472]" />
+                Upload MRI Scan
+              </h2>
 
-        {/* Two Column Layout */}
-        <div className="grid lg:grid-cols-3 gap-8">
-          {/* Left: Recent Scans Table (only my scans) */}
-          <div className="lg:col-span-2 bg-white border border-[#E8EDF2] rounded-xl overflow-hidden shadow-sm">
-            <div className="flex justify-between items-center px-5 pt-5 pb-3 border-b border-[#E8EDF2]">
-              <h2 className="text-lg font-semibold text-[#0D1B2A]">My Recent Scans</h2>
-              <Link href="/scans" className="text-xs text-[#0EA472] hover:underline flex items-center gap-1">
-                View all <ArrowRight />
-              </Link>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead className="bg-[#F8FAFB] border-b border-[#E8EDF2]">
-                  <tr className="text-left text-[#64748B]">
-                    <th className="px-5 py-3 font-medium">Patient</th>
-                    <th className="px-5 py-3 font-medium">Date</th>
-                    <th className="px-5 py-3 font-medium">Stage</th>
-                    <th className="px-5 py-3 font-medium">Confidence</th>
-                    <th className="px-5 py-3"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {recentScans.map((scan) => (
-                    <tr key={scan.id} className="border-b border-[#F1F5F9] hover:bg-[#F8FAFB] transition">
-                      <td className="px-5 py-3 text-[#0D1B2A]">{scan.patient}</td>
-                      <td className="px-5 py-3 text-[#64748B] text-xs">{scan.date}</td>
-                      <td className="px-5 py-3">
-                        <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
-                          scan.stage === "Mild Demented" ? "bg-orange-100 text-orange-700" :
-                          scan.stage === "Very Mild" ? "bg-yellow-100 text-yellow-700" :
-                          scan.stage === "Non-Demented" ? "bg-green-100 text-green-700" :
-                          "bg-red-100 text-red-700"
-                        }`}>
-                          {scan.stage}
-                        </span>
-                       </td>
-                      <td className="px-5 py-3">
-                        <div className="flex items-center gap-2">
-                          <div className="w-16 bg-[#E8EDF2] rounded-full h-1.5">
-                            <div className="h-1.5 rounded-full bg-[#0EA472]" style={{ width: `${scan.confidence}%` }} />
-                          </div>
-                          <span className="text-xs font-medium text-[#0D1B2A]">{scan.confidence}%</span>
-                        </div>
-                       </td>
-                      <td className="px-5 py-3">
-                        <Link href={`/scan/${scan.id}`} className="text-[#0EA472] hover:underline">
-                          <EyeIcon />
-                        </Link>
-                       </td>
-                    </tr>
-                  ))}
-                </tbody>
-               </table>
-            </div>
-          </div>
-
-          {/* Right Column: Quick Actions + My Recent Activity */}
-          <div className="space-y-6">
-            <div className="bg-white border border-[#E8EDF2] rounded-xl p-5 shadow-sm">
-              <h2 className="text-lg font-semibold text-[#0D1B2A] mb-3">Quick Actions</h2>
-              <div className="flex flex-col gap-2">
-                <Link href="/scan/upload" className="flex items-center justify-between p-3 bg-[#F8FAFB] rounded-xl hover:bg-[#EDF7F3] transition">
-                  <span className="text-sm text-[#0D1B2A]">Upload new MRI scan</span>
-                  <UploadIcon />
-                </Link>
-                <Link href="/patients/new" className="flex items-center justify-between p-3 bg-[#F8FAFB] rounded-xl hover:bg-[#EDF7F3] transition">
-                  <span className="text-sm text-[#0D1B2A]">Add new patient record</span>
-                  <PlusIcon />
-                </Link>
-                <Link href="/chat" className="flex items-center justify-between p-3 bg-[#F8FAFB] rounded-xl hover:bg-[#EDF7F3] transition">
-                  <span className="text-sm text-[#0D1B2A]">Ask AI assistant</span>
-                  <ChatIcon />
-                </Link>
+              <div
+                className={`border-2 border-dashed rounded-xl p-8 text-center transition ${
+                  previewUrl
+                    ? "border-[#0EA472] bg-[#EDF7F3]"
+                    : "border-[#E8EDF2] hover:border-[#0EA472] bg-[#F8FAFB]"
+                }`}
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  const file = e.dataTransfer.files?.[0];
+                  if (file) {
+                    setSelectedFile(file);
+                    setPreviewUrl(URL.createObjectURL(file));
+                  }
+                }}
+              >
+                {previewUrl ? (
+                  <div className="space-y-3">
+                    <div className="relative w-48 h-48 mx-auto rounded-lg overflow-hidden border border-[#E8EDF2]">
+                      <Image
+                        src={previewUrl}
+                        alt="Preview"
+                        fill
+                        className="object-contain"
+                        unoptimized
+                      />
+                    </div>
+                    <p className="text-sm font-medium text-[#0D1B2A]">
+                      {selectedFile?.name}
+                    </p>
+                    <button
+                      onClick={() => {
+                        setSelectedFile(null);
+                        setPreviewUrl(null);
+                        if (fileInputRef.current) fileInputRef.current.value = "";
+                      }}
+                      className="text-xs text-[#EF4444] hover:underline"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <Scan size={48} className="mx-auto text-[#94A3B8] mb-3" />
+                    <p className="text-[#64748B] text-sm">
+                      Drag & drop an MRI image here, or{" "}
+                      <button
+                        onClick={() => fileInputRef.current?.click()}
+                        className="text-[#0EA472] font-semibold hover:underline"
+                      >
+                        browse
+                      </button>
+                    </p>
+                    <p className="text-xs text-[#94A3B8] mt-1">
+                      Supports JPG, PNG (max 10MB)
+                    </p>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      className="hidden"
+                    />
+                  </>
+                )}
               </div>
+
+              {uploadError && (
+                <div className="mt-3 text-sm text-[#EF4444] bg-[#FEF2F2] border border-[#FECACA] rounded-xl px-3 py-2 flex items-center gap-2">
+                  <AlertCircle size={16} />
+                  {uploadError}
+                </div>
+              )}
+
+              <button
+                onClick={handleUpload}
+                disabled={!selectedFile || uploading}
+                className="mt-4 w-full bg-[#0D1B2A] text-white py-2.5 rounded-xl font-semibold text-sm hover:bg-[#1E3A5F] transition disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {uploading ? (
+                  <Loader2 size={18} className="animate-spin" />
+                ) : (
+                  <>
+                    <Upload size={18} />
+                    Analyse Scan
+                  </>
+                )}
+              </button>
             </div>
 
-            <div className="bg-white border border-[#E8EDF2] rounded-xl p-5 shadow-sm">
-              <h2 className="text-lg font-semibold text-[#0D1B2A] mb-3">My Recent Activity</h2>
-              <div className="space-y-4">
-                {recentActivity.map((activity) => (
-                  <div key={activity.id} className="flex gap-3">
-                    <div className="w-2 h-2 rounded-full bg-[#0EA472] mt-2" />
-                    <div>
-                      <p className="text-sm text-[#0D1B2A]">{activity.action}</p>
-                      <p className="text-xs text-[#94A3B8]">{activity.time}</p>
+            {/* Latest Result */}
+            {latestResult && (
+              <div className="bg-white border border-[#E8EDF2] rounded-2xl p-6 shadow-sm">
+                <h2 className="text-lg font-semibold text-[#0D1B2A] mb-4 flex items-center gap-2">
+                  <Activity size={20} className="text-[#0EA472]" />
+                  Latest Prediction
+                </h2>
+                <div className="flex flex-col sm:flex-row gap-6 items-start">
+                  <div className="relative w-40 h-40 rounded-lg overflow-hidden border border-[#E8EDF2] flex-shrink-0 bg-[#F1F5F9] flex items-center justify-center">
+                    {latestResult.image_path ? (
+                      <Image
+                        src={latestResult.image_path}
+                        alt="Latest scan"
+                        fill
+                        className="object-cover"
+                        onError={(e) => {
+                          // Fallback if image fails to load
+                          e.currentTarget.style.display = "none";
+                        }}
+                      />
+                    ) : (
+                      <FileImage size={32} className="text-[#94A3B8]" />
+                    )}
+                    {/* Fallback icon if image fails */}
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                      <FileImage size={32} className="text-[#94A3B8] opacity-50" />
                     </div>
                   </div>
-                ))}
+                  <div className="flex-1 space-y-2">
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm text-[#64748B]">Result:</span>
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                          latestResult.result === "NonDemented"
+                            ? "bg-[#D1FAE5] text-[#065F46]"
+                            : latestResult.result === "VeryMild"
+                            ? "bg-[#DBEAFE] text-[#1E40AF]"
+                            : latestResult.result === "Mild"
+                            ? "bg-[#FEF3C7] text-[#92400E]"
+                            : "bg-[#FEE2E2] text-[#991B1B]"
+                        }`}
+                      >
+                        {latestResult.result}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm text-[#64748B]">Confidence:</span>
+                      <span className="text-sm font-bold text-[#0D1B2A]">
+                        {(latestResult.confidence * 100).toFixed(1)}%
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm text-[#64748B]">Date:</span>
+                      <span className="text-sm text-[#0D1B2A]">
+                        {formatDate(latestResult.timestamp)}
+                      </span>
+                    </div>
+                    <Link
+                      href="/chat"
+                      className="inline-flex items-center gap-1.5 text-sm text-[#0EA472] font-semibold hover:underline mt-2"
+                    >
+                      Ask AI about this result
+                      <ArrowRight size={14} />
+                    </Link>
+                  </div>
+                </div>
               </div>
+            )}
+          </div>
+
+          {/* ── Sidebar ── */}
+          <div className="space-y-6">
+            {/* Quick actions */}
+            <div className="bg-white border border-[#E8EDF2] rounded-2xl p-6 shadow-sm">
+              <h3 className="text-sm font-semibold text-[#64748B] uppercase tracking-wider mb-4">
+                Quick Actions
+              </h3>
+              <div className="space-y-3">
+                <Link
+                  href="/chat"
+                  className="flex items-center gap-3 p-3 rounded-xl bg-[#F8FAFB] hover:bg-[#EDF7F3] transition group"
+                >
+                  <MessageSquare size={18} className="text-[#0EA472]" />
+                  <span className="text-sm font-medium text-[#0D1B2A] group-hover:text-[#0EA472] transition">
+                    AI Clinical Chat
+                  </span>
+                </Link>
+                <Link
+                  href="/reports"
+                  className="flex items-center gap-3 p-3 rounded-xl bg-[#F8FAFB] hover:bg-[#EDF7F3] transition group"
+                >
+                  <FileText size={18} className="text-[#0EA472]" />
+                  <span className="text-sm font-medium text-[#0D1B2A] group-hover:text-[#0EA472] transition">
+                    View All Reports
+                  </span>
+                </Link>
+              </div>
+            </div>
+
+            {/* Stats */}
+            <div className="bg-white border border-[#E8EDF2] rounded-2xl p-6 shadow-sm">
+              <h3 className="text-sm font-semibold text-[#64748B] uppercase tracking-wider mb-4">
+                Your Activity
+              </h3>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-[#64748B]">Total Scans</span>
+                  <span className="text-lg font-bold text-[#0D1B2A]">
+                    {predictions.length}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-[#64748B]">Latest Stage</span>
+                  <span className="text-sm font-semibold text-[#0D1B2A]">
+                    {latestResult ? latestResult.result : "—"}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-[#64748B]">Last Scan</span>
+                  <span className="text-sm text-[#0D1B2A]">
+                    {latestResult ? formatDate(latestResult.timestamp) : "No scans"}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Recent predictions */}
+            <div className="bg-white border border-[#E8EDF2] rounded-2xl p-6 shadow-sm">
+              <h3 className="text-sm font-semibold text-[#64748B] uppercase tracking-wider mb-4">
+                Recent Scans
+              </h3>
+              {predictions.slice(0, 5).map((pred) => (
+                <div
+                  key={pred.id}
+                  className="flex items-center gap-3 py-2 border-b border-[#F1F5F9] last:border-0"
+                >
+                  <div className="w-8 h-8 rounded-md bg-[#F1F5F9] flex items-center justify-center">
+                    <FileImage size={14} className="text-[#64748B]" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-medium text-[#0D1B2A]">
+                        {pred.result}
+                      </span>
+                      <span className="text-[10px] text-[#94A3B8]">
+                        {(pred.confidence * 100).toFixed(0)}%
+                      </span>
+                    </div>
+                    <p className="text-[10px] text-[#94A3B8]">
+                      {formatDate(pred.timestamp)}
+                    </p>
+                  </div>
+                </div>
+              ))}
+              {predictions.length === 0 && (
+                <p className="text-sm text-[#94A3B8] text-center py-4">
+                  No scans uploaded yet.
+                </p>
+              )}
             </div>
           </div>
         </div>
