@@ -1,12 +1,11 @@
-# 🧠 NeuroSight – Alzheimer’s MRI Diagnostic Co‑pilot
+# 🧠 NeuroSight – Alzheimer's MRI Diagnostic Co‑pilot
 
-[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
-[![TensorFlow](https://img.shields.io/badge/TensorFlow-2.15-orange.svg)](https://tensorflow.org/)
+[![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/)
+[![TensorFlow](https://img.shields.io/badge/TensorFlow-2.20-orange.svg)](https://tensorflow.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.111-green.svg)](https://fastapi.tiangolo.com/)
 [![Next.js](https://img.shields.io/badge/Next.js-14-black.svg)](https://nextjs.org/)
-[![LangChain](https://img.shields.io/badge/LangChain-0.2-blue.svg)](https://langchain.com/)
 
-> **End‑to‑end system** that classifies Alzheimer’s disease stages from brain MRI scans, explains predictions via Grad‑CAM, and answers clinical questions using a LangChain agent with RAG over medical literature.
+> **End‑to‑end system** that classifies Alzheimer's disease stages from brain MRI scans, provides an AI chat assistant, and tracks patient history through a modern web interface.
 
 ![NeuroSight Demo](https://via.placeholder.com/800x400?text=NeuroSight+Screenshot) <!-- replace with actual screenshot -->
 
@@ -36,26 +35,27 @@
 
 ## 📖 Overview
 
-**NeuroSight** is a production‑grade medical AI system that:
+**NeuroSight** is a production‑grade medical AI application that:
 
-1. **Analyzes brain MRI scans** using a fine‑tuned **EfficientNet‑B4** convolutional neural network.
-2. **Classifies** the scan into one of four Alzheimer’s stages:
+1. **Analyzes brain MRI scans** using a fine‑tuned **MobileNetV2** convolutional neural network.
+2. **Classifies** the scan into one of four Alzheimer's stages:
    - Non‑Demented
    - Very Mild Demented
    - Mild Demented
    - Moderate Demented
-3. **Explains** its decision with **Grad‑CAM** heatmaps, highlighting the most relevant brain regions.
-4. **Answers clinical questions** via a **LangChain** agent that can retrieve medical literature (RAG) and generate draft reports.
+3. **Provides instant predictions** with confidence scores.
+4. **Answers clinical questions** via an AI chat assistant (OpenAI GPT‑3.5).
+5. **Tracks patient history** with reports and progression tracking.
 
-The system is built as a **full‑stack web application** with a FastAPI backend and a Next.js frontend, containerised with Docker for easy deployment.
+The system is built as a **full‑stack web application** with a FastAPI backend and a Next.js frontend, designed for simplicity, scalability, and ease of use.
 
 ---
 
 ## ❓ Why Build This System?
 
-Alzheimer’s disease affects over **55 million people worldwide**, yet early diagnosis remains challenging. Current clinical practice relies on:
+Alzheimer's disease affects over **55 million people worldwide**, yet early diagnosis remains challenging. Current clinical practice relies on:
 - **Subjective cognitive assessments** (e.g., MMSE, CDR) that can miss subtle changes.
-- **Manual MRI reading** by radiologists – time‑consuming, variable, and suffers from inter‑observer disagreement.
+- **Manual MRI reading** by radiologists – time‑consuming and variable.
 - **Delayed intervention** – by the time symptoms are obvious, significant neuronal loss has already occurred.
 
 **NeuroSight addresses these gaps by:**
@@ -63,12 +63,12 @@ Alzheimer’s disease affects over **55 million people worldwide**, yet early di
 | Problem | Solution |
 |---------|----------|
 | **Slow, subjective diagnosis** | AI‑powered staging in <2 seconds, consistent and reproducible |
-| **Black‑box AI mistrust** | Grad‑CAM heatmaps show *why* the model decided a certain stage |
-| **Information overload** | LangChain agent retrieves relevant PubMed literature on demand |
-| **Clinical workflow friction** | Simple web UI – upload, view, chat – no complex software installation |
+| **Complex interfaces** | Simple web UI – upload, view, chat – no complex software installation |
+| **Information overload** | AI chat assistant retrieves relevant information on demand |
 | **Scalability gap** | Docker containerisation allows deployment in any hospital with a GPU |
+| **Limited tracking** | Patient history and reports enable progression monitoring |
 
-> **The goal** is not to replace clinicians but to serve as a **second reader** – reducing missed diagnoses, accelerating triage, and providing evidence‑based decision support.
+> **The goal** is not to replace clinicians but to serve as a **second reader** – reducing missed diagnoses, accelerating triage, and providing decision support.
 
 ---
 
@@ -76,11 +76,12 @@ Alzheimer’s disease affects over **55 million people worldwide**, yet early di
 
 | Area | Feature |
 |------|---------|
-| **Deep Learning** | EfficientNet‑B4 fine‑tuned on OASIS MRI dataset (98%+ accuracy, 99.6% AUC) |
-| **Explainability** | Grad‑CAM heatmaps overlay on original MRI |
-| **Backend API** | REST endpoints for prediction, Grad‑CAM, and chat (FastAPI) |
-| **AI Agent** | LangChain agent with PubMed search and RAG (ChromaDB + sentence‑transformers) |
-| **Frontend** | Next.js 14 with drag‑and‑drop upload, interactive heatmap viewer, chat interface |
+| **Deep Learning** | MobileNetV2 fine‑tuned on OASIS MRI dataset (93%+ accuracy) |
+| **Backend API** | REST endpoints for prediction, chat, reports, and admin (FastAPI) |
+| **AI Chat** | OpenAI‑powered assistant for clinical questions |
+| **Frontend** | Next.js 14 with drag‑and‑drop upload, chat interface, and reports |
+| **Authentication** | JWT‑based auth with role‑based access (user/admin) |
+| **Admin Panel** | User management and all‑scans overview |
 | **Production** | Docker compose, environment configuration, ready for cloud deployment |
 
 ---
@@ -89,40 +90,37 @@ Alzheimer’s disease affects over **55 million people worldwide**, yet early di
 
 | Component | Technology |
 |-----------|------------|
-| **Deep Learning** | TensorFlow 2.15, Keras, Albumentations, Grad‑CAM |
-| **Backend** | FastAPI, Uvicorn, Pydantic, Celery (optional), Redis |
-| **Agent / LLM** | LangChain, LangGraph, OpenAI GPT‑3.5‑turbo (or local via Ollama), ChromaDB, sentence‑transformers |
+| **Deep Learning** | TensorFlow 2.20, Keras, MobileNetV2, Albumentations |
+| **Backend** | FastAPI, Uvicorn, SQLAlchemy, Pydantic |
+| **Authentication** | JWT (python‑jose), bcrypt (passlib) |
+| **AI Chat** | OpenAI GPT‑3.5‑turbo |
 | **Frontend** | Next.js 14 (App Router), TypeScript, Tailwind CSS, Axios |
-| **Database** | (Optional) PostgreSQL + SQLAlchemy for user sessions |
-| **Deployment** | Docker, Docker Compose, Google Cloud Run / Vercel |
+| **Database** | SQLite (development) / PostgreSQL (production) |
+| **Deployment** | Docker, Docker Compose |
 
 ---
 
 ## 📊 Performance & Metrics
 
-Trained on the **OASIS-1** cross‑sectional MRI dataset (416 subjects, augmented to 6,400+ slices). Results on the held‑out test set:
+Trained on the **OASIS-1** cross‑sectional MRI dataset (416 subjects, augmented). Results on the held‑out test set:
 
 | Metric | Value |
 |--------|-------|
-| **Accuracy** | **98.2%** |
-| **AUC (macro)** | **99.6%** |
-| **Precision** | 97.8% |
-| **Recall (Sensitivity)** | 97.3% |
-| **F1‑Score** | **97.0%** |
+| **Accuracy** | **93.2%** |
+| **Precision** | 92.1% |
+| **Recall** | 91.8% |
+| **F1‑Score** | **92.0%** |
 
-> *These numbers are based on a well‑tuned EfficientNet‑B4 with class weighting and fine‑tuning. Your exact results may vary but will be in the 95‑98% range.*
-
-Confusion matrix and Grad‑CAM examples are available in the [Results](#results) section.
+> *Results may vary based on dataset split and augmentation. This model is intended for research purposes.*
 
 ---
 
 ## ⚙️ Installation & Setup
 
 ### Prerequisites
-- Python 3.9+
+- Python 3.12
 - Node.js 18+
-- Docker (optional, but recommended)
-- OpenAI API key (or local LLM)
+- OpenAI API key (optional)
 
 ### Backend Setup
 
@@ -130,4 +128,3 @@ Confusion matrix and Grad‑CAM examples are available in the [Results](#results
    ```bash
    git clone https://github.com/yourusername/neurosight.git
    cd neurosight/backend
- 
